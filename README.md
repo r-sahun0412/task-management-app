@@ -4,9 +4,21 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Available Scripts
 
+Install backend dependencies.
+#npm install or npm i
+
 In the project directory, you can run:
 
 ### `npm start`
+
+Start the Express backend server.
+
+#cd server
+#node server.js
+
+Install backend dependencies.
+#cd server
+#npm install or npm i
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
