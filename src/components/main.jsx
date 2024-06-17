@@ -11,7 +11,9 @@ const Main = () => {
            </figure>
 
            <div>
-           <Link to="/login" className='btn bg-completed'>User Sign in</Link>
+           <Link to="/login" className='signin-button' style={{margin:"5px"}}>User Sign in</Link>
+
+           <Link to="/register" className="register-button">Register</Link>
 
            </div>
         </div>

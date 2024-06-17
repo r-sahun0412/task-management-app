@@ -1,208 +1,62 @@
-var express = require("express");
-var cors = require("cors");
-var mongoClient = require("mongodb").MongoClient;
-const { ObjectId } = require("mongodb");
+const express = require('express');
+const cors = require('cors');
+const { MongoClient, ObjectId } = require('mongodb');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const path = require('path');
 const app = express();
-const path = require ("path");
-app.use(express.static(path.join(__dirname + "/public")));
-const PORT = process.env.PORT || 2700
 
-var constr = "mongodb://127.0.0.1:27017";
+app.use(express.static(path.join(__dirname + '/public')));
+const PORT = process.env.PORT || 2700;
 
+const constr = 'mongodb://127.0.0.1:27017';
 
 app.use(cors());
-app.use(express.urlencoded({
-    extended: true
-}));
-
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// ===========>Routes<============================
+const JWT_SECRET = 'JWTKEY';
 
-// For All Task
-app.get("/task", (req, res) => {
-    mongoClient.connect(constr).then((clientObj) => {
-        var db = clientObj.db("task");
-        db.collection("task").find({}).toArray().then(documents => {
-            console.log(documents);
-            res.send(documents); // Sending the response after the data has been fetched
-        }).catch(error => {
-            console.error(error);
-            res.status(500).send("Internal Server Error");
-        }).finally(() => {
-            clientObj.close(); // Close the MongoDB connection
-        });
-    }).catch(error => {
-        console.error(error);
-        res.status(500).send("Internal Server Error");
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
     });
-})
+}
 
-// For Add Task
-app.post("/addtask", (req, res) => {
-    var task = {
-        TaskName: req.body.TaskName,
-        TaskDescription: req.body.TaskDescription
-    };
+// Login User
+app.post('/login', async (req, res) => {
+    const { UserId, Password } = req.body;
 
-    var clientObj; // Declare the clientObj variable
-
-    mongoClient.connect(constr)
-        .then(client => {
-            clientObj = client; // Assign the client to the variable
-            var db = client.db("task");
-            return db.collection("task").insertOne(task);
-        })
-        .then(() => {
-            console.log(`Task Added Successfully.`);
-            res.end();
-        })
-        .catch(error => {
-            console.error(error);
-            res.status(500).send("Internal Server Error");
-        })
-        .finally(() => {
-            if (clientObj) {
-                clientObj.close(); // Close the MongoDB connection
-            }
-        });
-});
-
-
-
-
-// For Updating Task
-app.put("/updatetask/:id", (req, res) => {
-    var taskIdToUpdate = req.params.id; // Get the task ID from the URL parameter
-    var updatedTask = {
-        TaskName: req.body.TaskName,
-        TaskDescription: req.body.TaskDescription
-    };
-
-    mongoClient.connect(constr).then(client => {
-        var db = client.db("task");
-        db.collection("task").updateOne(
-            { _id: new ObjectId(taskIdToUpdate) }, // Wrap taskIdToUpdate in ObjectId
-            { $set: updatedTask }
-        ).then(() => {
-            console.log("Task Updated Successfully");
-            res.end();
-        }).catch(error => {
-            console.error(error);
-            res.status(500).send("Internal Server Error");
-        }).finally(() => {
-            client.close();
-        });
-    }).catch(error => {
-        console.error(error);
-        res.status(500).send("Internal Server Error");
-    });
-});
-
-
-
-
-// For Deleting Task
-
-
-app.delete("/deletetask/:id", async (req, res) => {
-    const taskIdToDelete = req.params.id;
-    
+    let client;
     try {
-        const client = await mongoClient.connect(constr);
-        const db = client.db("task");
-        
-        const result = await db.collection("task").deleteOne({ _id: new ObjectId(taskIdToDelete) });
-        
-        if (result.deletedCount === 1) {
-            console.log("Task Deleted");
-            res.send("Task deleted successfully");
+        client = await MongoClient.connect(constr);
+        const db = client.db('task');
+        const user = await db.collection('users').findOne({ UserId });
+
+        if (!user) return res.status(400).send('User not found');
+        if (await bcrypt.compare(Password, user.Password)) {
+            const token = jwt.sign({ UserId: user.UserId }, JWT_SECRET, { expiresIn: '1h' });
+            return res.json({ token });
         } else {
-            console.log("Task not found");
-            res.status(404).send("Task not found");
+            return res.status(401).send('Invalid password');
         }
-        
-        client.close(); // Close the MongoDB connection
     } catch (error) {
-        console.error(error); // Log the error for debugging
-        res.status(500).send("Internal Server Error: " + error.message);
-    }
-});
-// completed Task
-// Mark task as completed
-app.put("/markcompleted/:id", async (req, res) => {
-    const taskIdToUpdate = req.params.id;
-  
-    try {
-      const client = await mongoClient.connect(constr);
-      const db = client.db("task");
-  
-      await db.collection("task").updateOne(
-        { _id: new ObjectId(taskIdToUpdate) },
-        { $set: { completed: true } }
-      );
-  
-      console.log("Task Marked as Completed");
-      res.send("Task marked as completed");
-  
-      client.close();
-    } catch (error) {
-      console.error(error);
-      res.status(500).send("Internal Server Error: " + error.message);
-    }
-  });
-  
-  // Mark task as incomplete
-  app.put("/markincomplete/:id", async (req, res) => {
-    const taskIdToUpdate = req.params.id;
-  
-    try {
-      const client = await mongoClient.connect(constr);
-      const db = client.db("task");
-  
-      await db.collection("task").updateOne(
-        { _id: new ObjectId(taskIdToUpdate) },
-        { $set: { completed: false } }
-      );
-  
-      console.log("Task Marked as Incomplete");
-      res.send("Task marked as incomplete");
-  
-      client.close();
-    } catch (error) {
-      console.error(error);
-      res.status(500).send("Internal Server Error: " + error.message);
-    }
-  });
-  
-//   server
-// For fetching tasks by completion status
-app.get("/task/:status", (req, res) => {
-    const status = req.params.status; // Get the status from the URL parameter
-    
-    const query = status === "completed" ? { completed: true } : status === "pending" ? { completed: false } : {};
-    
-    mongoClient.connect(constr).then((clientObj) => {
-        var db = clientObj.db("task");
-        db.collection("task").find(query).toArray().then(documents => {
-            console.log(documents);
-            res.send(documents); // Sending the response after the data has been fetched
-        }).catch(error => {
-            console.error(error);
-            res.status(500).send("Internal Server Error");
-        }).finally(() => {
-            clientObj.close(); // Close the MongoDB connection
-        });
-    }).catch(error => {
         console.error(error);
-        res.status(500).send("Internal Server Error");
-    });
+        res.status(500).send('Internal Server Error');
+    } finally {
+        if (client) client.close();
+    }
 });
 
-// register user
-app.post("/registeruser", (req, res)=>{
-
-    var user = {
+// Register User
+app.post('/registeruser', async (req, res) => {
+    const user = {
         UserId: req.body.UserId,
         UserName: req.body.UserName,
         Password: req.body.Password,
@@ -210,29 +64,226 @@ app.post("/registeruser", (req, res)=>{
         Mobile: req.body.Mobile
     };
 
-    mongoClient.connect(constr).then(clientObj=>{
-         var database = clientObj.db("task");
-         database.collection("users").insertOne(user).then(()=>{
-             console.log(`User Inserted`);
-             res.redirect("/users");
-             res.end();
-         })
-    })
+    let client;
+    try {
+        client = await MongoClient.connect(constr);
+        const db = client.db('task');
+        const existingUser = await db.collection('users').findOne({
+            $or: [
+                { UserId: user.UserId },
+                { Email: user.Email },
+                { Mobile: user.Mobile }
+            ]
+        });
+
+        if (existingUser) {
+            res.status(400).send('User already exists');
+        } else {
+            const salt = await bcrypt.genSalt(10);
+            user.Password = await bcrypt.hash(user.Password, salt);
+            await db.collection('users').insertOne(user);
+            res.status(201).send('User registered successfully');
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    } finally {
+        if (client) client.close();
+    }
 });
 
-// users
+// Get All Tasks (Protected Route)
+app.get("/task", authenticateToken, async (req, res) => {
+    const userId = req.user.UserId; // Get user ID from the token
 
-app.get("/users", (req, res)=>{
-    mongoClient.connect(constr).then((clientObj)=>{
-        var database = clientObj.db("task");
-        database.collection("users").find({}).toArray().then(documents=>{
-            res.send(documents);
-            res.end();
-        })
-    })
+    let client;
+    try {
+        client = await MongoClient.connect(constr);
+        const db = client.db("task");
+        const tasks = await db.collection("task").find({ UserId: userId }).toArray(); // Filter tasks by user ID
+        res.send(tasks);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    } finally {
+        if (client) client.close();
+    }
 });
 
-// ===============>Port<==================
 
-app.listen(PORT);
-console.log(`Server Started : http://127.0.0.1:2700`);
+// Fetch a specific task by ID (Protected Route)
+app.get("/task/:id", authenticateToken, async (req, res) => {
+    const taskId = req.params.id;
+
+    let client;
+    try {
+        client = await MongoClient.connect(constr);
+        const db = client.db("task");
+        const task = await db.collection("task").findOne({ _id: new ObjectId(taskId) });
+
+        if (!task) {
+            return res.status(404).send('Task not found');
+        }
+
+        res.send(task);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    } finally {
+        if (client) client.close();
+    }
+});
+
+
+// Get Tasks by Status (Protected Route)
+app.get("/task/:status", authenticateToken, async (req, res) => {
+    const status = req.params.status;
+    const query = status === "completed" ? { completed: true } : status === "pending" ? { completed: false } : {};
+
+    let client;
+    try {
+        client = await MongoClient.connect(constr);
+        const db = client.db("task");
+        const tasks = await db.collection("task").find(query).toArray();
+        res.send(tasks);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    } finally {
+        if (client) client.close();
+    }
+});
+
+// Add Task
+// Add Task
+app.post("/addtask", authenticateToken, async (req, res) => {
+    const task = {
+        UserId: req.user.UserId, // Add user ID to the task
+        TaskName: req.body.TaskName,
+        TaskDescription: req.body.TaskDescription
+    };
+
+    let client;
+    try {
+        client = await MongoClient.connect(constr);
+        const db = client.db("task");
+        await db.collection("task").insertOne(task);
+        res.status(201).send('Task added successfully');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    } finally {
+        if (client) client.close();
+    }
+});
+
+// Update Task
+app.put("/updatetask/:id", authenticateToken, async (req, res) => {
+    const taskIdToUpdate = req.params.id;
+    const updatedTask = {
+        TaskName: req.body.TaskName,
+        TaskDescription: req.body.TaskDescription
+    };
+
+    let client;
+    try {
+        client = await MongoClient.connect(constr);
+        const db = client.db("task");
+        await db.collection("task").updateOne(
+            { _id: new ObjectId(taskIdToUpdate) },
+            { $set: updatedTask }
+        );
+        res.send('Task updated successfully');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    } finally {
+        if (client) client.close();
+    }
+});
+
+// Delete Task
+app.delete("/deletetask/:id", authenticateToken, async (req, res) => {
+    const taskIdToDelete = req.params.id;
+
+    let client;
+    try {
+        client = await MongoClient.connect(constr);
+        const db = client.db("task");
+        const result = await db.collection("task").deleteOne({ _id: new ObjectId(taskIdToDelete) });
+
+        if (result.deletedCount === 1) {
+            res.send("Task deleted successfully");
+        } else {
+            res.status(404).send("Task not found");
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    } finally {
+        if (client) client.close();
+    }
+});
+
+// Mark task as completed
+app.put("/markcompleted/:id", authenticateToken, async (req, res) => {
+    const taskIdToUpdate = req.params.id;
+
+    let client;
+    try {
+        client = await MongoClient.connect(constr);
+        const db = client.db("task");
+        await db.collection("task").updateOne(
+            { _id: new ObjectId(taskIdToUpdate) },
+            { $set: { completed: true } }
+        );
+        res.send("Task marked as completed");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    } finally {
+        if (client) client.close();
+    }
+});
+
+// Mark task as incomplete
+app.put("/markincomplete/:id", authenticateToken, async (req, res) => {
+    const taskIdToUpdate = req.params.id;
+
+    let client;
+    try {
+        client = await MongoClient.connect(constr);
+        const db = client.db("task");
+        await db.collection("task").updateOne(
+            { _id: new ObjectId(taskIdToUpdate) },
+            { $set: { completed: false } }
+        );
+        res.send("Task marked as incomplete");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    } finally {
+        if (client) client.close();
+    }
+});
+
+// Get Users
+app.get("/users", authenticateToken, async (req, res) => {
+    let client;
+    try {
+        client = await MongoClient.connect(constr);
+        const db = client.db("task");
+        const users = await db.collection("users").find({}).toArray();
+        res.send(users);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    } finally {
+        if (client) client.close();
+    }
+});
+
+// Start Server
+app.listen(PORT, () => {
+    console.log(`Server Started: http://localhost:${PORT}`);
+});

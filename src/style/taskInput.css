@@ -1,0 +1,79 @@
+body {
+    font-family: Tahoma, Geneva, sans-serif;
+    background-color: #c0c0c0; /* Classic gray background */
+    color: #000000; /* Black text color */
+    margin: 0;
+    padding: 0;
+  }
+  
+  .container {
+    background-color: #d4d0c8; /* Light gray background */
+    color: #000000;
+    padding: 20px;
+    margin: 50px auto;
+    width: 50%;
+    border: 2px solid #808080; /* Dark gray border */
+    box-shadow: inset 4px 4px 0 #ffffff, inset -4px -4px 0 #808080; /* Classic 3D effect */
+    border-radius: 10px;
+  }
+  
+  .container h2 {
+    text-align: center;
+    color: #000080; /* Classic blue color for heading */
+  }
+  
+  .container form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .container label {
+    margin: 10px 0 5px;
+    font-weight: bold;
+  }
+  
+  .container .custom-input,
+  .container .custom-textarea,
+  .container .custom-button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 2px solid #808080;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: #c0c0c0;
+    box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080; /* Classic 3D effect */
+    outline: none; /* Remove default blue outline */
+  }
+  
+  .container .custom-textarea {
+    height: auto;
+    min-height: 100px;
+  }
+  
+  .container button {
+    background-color: #d4d0c8; /* Light gray background */
+    color: #000000;
+    border: 2px solid #808080;
+    padding: 10px 20px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    font-weight: bold; /* Ensure bold font */
+    box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080; /* Classic 3D effect */
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .container button:hover {
+    background-color: #000080; /* Classic blue color on hover */
+    color: #ffffff;
+    border: 2px solid #000080;
+  }
+  
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  

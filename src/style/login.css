@@ -1,0 +1,97 @@
+/* login.css */
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #c0c0c0; /* Classic gray background */
+  margin: 0;
+  padding: 0;
+  width: 400px;
+}
+
+.login-form {
+  background-color: #d4d0c8; /* Light gray background */
+  padding: 20px;
+  width: 100%;
+  border: 2px solid #808080; /* Dark gray border */
+  box-shadow: inset 4px 4px 0 #ffffff, inset -4px -4px 0 #808080; /* Classic 3D effect */
+  border-radius: 10px;
+}
+
+.login-form h2 {
+  text-align: center;
+  color: #000080; /* Classic blue color for heading */
+  margin-bottom: 20px;
+}
+
+.custom-input {
+  margin-bottom: 20px;
+}
+
+.custom-input label {
+  font-weight: bold;
+}
+
+.custom-input input {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #808080;
+  border-radius: 5px;
+  font-size: 14px;
+  background-color: #c0c0c0;
+  box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080; /* Classic 3D effect */
+  outline: none; /* Remove default blue outline */
+}
+
+.custom-input input.gray-background {
+  background-color: #c0c0c0; /* Gray background for input fields */
+}
+
+.custom-button {
+  background-color: #d4d0c8; /* Light gray background */
+  color: #000000;
+  border: 2px solid #808080;
+  padding: 10px 20px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  font-weight: bold; /* Ensure bold font */
+  box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080; /* Classic 3D effect */
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.custom-button:hover {
+  background-color: #000080; /* Classic blue color on hover */
+  color: #ffffff;
+  border: 2px solid #000080;
+}
+
+.register-link {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.register-link p {
+  margin-bottom: 10px;
+}
+
+.register-button {
+  background-color: #d4d0c8; /* Light gray background */
+  color: #000000;
+  border: 2px solid #808080;
+  padding: 10px 20px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  font-weight: bold; /* Ensure bold font */
+  box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080; /* Classic 3D effect */
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.register-button:hover {
+  background-color: #000080; /* Classic blue color on hover */
+  color: #ffffff;
+  border: 2px solid #000080;
+}

@@ -1,64 +1,75 @@
-
-
-import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter, Link, Route, Routes, useNavigate } from 'react-router-dom';
+import { Grid, Button, Typography } from '@mui/material';
 import TaskManagement from './components/todo';
 import { UserLogin } from './components/login';
-
-import React, { useState } from 'react';
-import { useCookies } from 'react-cookie';
-import "./App.css";
 import Main from './components/main';
+import Register from './components/register';
+import UpdateTask from './components/updateTask';
+import { useCookies } from 'react-cookie';
+import './style/App.css';
 
-
-function App() {
-
-  // const [isLoggedIn, setIsLoggedIn] = useState(false);
-  // const [userName, setUserName] = useState('');
-
-  const [cookies, setCookie, removeCookie] = useCookies();
+const App = () => {
+  const [cookies, , removeCookie] = useCookies(["user-id", "token"]);
+  const navigate = useNavigate();
 
   const handleSignout = () => {
     removeCookie("user-id");
+    removeCookie("token");
+    navigate("/login");
   };
 
-  // const handleSignOut = () => {
-  //   setIsLoggedIn(false);
-  //   setUserName('');
-  // }
-  
   return (
     <div className="App">
-      <BrowserRouter>
-        <header className="head d-flex justify-content-between p-2">
-          <div>
-            <h2>
-              <Link to="/" className="text-black text-decoration-none">
-                TaskMaster
-              </Link>
-            </h2>
-          </div>
-          <div>
-            {cookies['user-id'] === undefined ? (
-              <Link to="/login" className='btn bg-completed'>User Sign in</Link>
-            ) : (
-              <div>
-                {cookies['user-id']}
-                <Link to="/login" onClick={handleSignout} className="btn bg-incomplete ms-4">Signout</Link>
-              </div>
-            )}
-          </div>
-        </header>
-        
+      <header className="app-header">
+        <Grid container alignItems="center" justifyContent="space-between">
+          <Grid item>
+            <h1 className="app-title">
+              <Link to="/" className="app-title-link">TaskMaster</Link>
+            </h1>
+          </Grid>
+          <Grid item>
+            <nav className="app-nav">
+              {cookies['user-id'] === undefined ? (
+                <>
+                  <Link to="/login" className="btn">User Sign in</Link>
+                  <Link to="/register" className="btn ms-4">Register</Link>
+                </>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <Typography variant="body1" style={{ fontWeight: 'bold', textTransform: 'uppercase', marginRight: '1rem' }}>
+                    {cookies['user-id']}
+                  </Typography>
+                  <Button className="btn" onClick={handleSignout}>Signout</Button>
+                </div>
+              )}
+            </nav>
+          </Grid>
+        </Grid>
+      </header>
+      <main className="app-main" style={
+        {
+          marginTop:"50px"
+        }
+      }>
         <Routes>
-          <Route path='/' element={<Main />}></Route>
-          <Route path='/taskmanager' element={ <TaskManagement />}></Route>
-          <Route path='/login' element={<UserLogin />} />
-          
+          <Route path="/" element={<Main />} />
+          <Route path="/taskmanager" element={<TaskManagement />} />
+          <Route path="/login" element={<UserLogin />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/updatetask/:id" element={<UpdateTask />} />
         </Routes>
-      </BrowserRouter>
-      
+      </main>
     </div>
   );
-}
+};
 
-export default App;
+const AppWrapper = () => {
+  return (
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  );
+};
+
+export default AppWrapper;

@@ -1,0 +1,80 @@
+body {
+  font-family: Tahoma, Geneva, sans-serif;
+  background-color: #c0c0c0; /* Classic gray background */
+  color: #000000; /* Black text color */
+  margin: 0;
+  padding: 0;
+}
+
+.app-header {
+  background-color: #d4d0c8; /* Light gray background for the header */
+  color: #000000;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #808080; /* Dark gray border */
+  box-shadow: inset 4px 4px 0 #ffffff, inset -4px -4px 0 #808080; /* Classic 3D effect */
+}
+
+.app-title-link {
+  text-decoration: none;
+  color: #000080; /* Classic blue color for links */
+  font-size: 24px;
+  font-weight: bold; /* Ensure bold font */
+}
+
+.app-nav .btn {
+  background-color: #d4d0c8; /* Light gray background */
+  color: #000000;
+  border: 2px solid #808080;
+  margin-left: 10px;
+  text-decoration: none;
+  padding: 8px 15px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  font-weight: bold; /* Ensure bold font */
+  box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080; /* Classic 3D effect */
+}
+
+.app-nav .btn:hover {
+  background-color: #000080; /* Classic blue color on hover */
+  color: #ffffff;
+  border: 2px solid #000080;
+}
+
+.app-main {
+  padding: 20px;
+  margin: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+  height: calc(100vh - 80px);
+}
+
+.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.btn {
+  font-size: 18px;
+  padding: 10px 20px;
+}
+
+.bg-completed {
+  background-color: #d4d0c8; /* Light gray background */
+  color: #000000;
+  transition: background-color 0.3s ease;
+  box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080; /* Classic 3D effect */
+}
+
+.bg-completed:hover {
+  background-color: #000080; /* Classic blue color on hover */
+  color: #ffffff;
+}
