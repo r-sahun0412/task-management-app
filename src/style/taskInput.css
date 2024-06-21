@@ -48,7 +48,7 @@ body {
   
   .container .custom-textarea {
     height: auto;
-    min-height: 100px;
+    /* min-height: 100px; */
   }
   
   .container button {
